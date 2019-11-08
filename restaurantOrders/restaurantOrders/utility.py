@@ -1,12 +1,12 @@
 import traceback
 
-def exception_detail(e):
-    try:
-        print(e)
-        print('exception -> ', traceback.format_exc())
-    except Exception as e:
-        print(e.args)
 
+def sort_on_basis_of_value(data_dict, reverse=False):
+    try:
+        data_dict = dict(sorted(data_dict.items(), key=lambda kv: kv[1], reverse=reverse))
+        return data_dict
+    except Exception as e:
+        exception_detail(e)
 
 def get_response_object(success=False, msg='', data=None):
     """
@@ -29,3 +29,10 @@ def get_response_object(success=False, msg='', data=None):
     except Exception as e:
         exception_detail()
     return res_dict
+
+def exception_detail(e):
+    try:
+        print(e)
+        print('exception -> ', traceback.format_exc())
+    except Exception as e:
+        print(e.args)
