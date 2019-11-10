@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'restaurantOrders.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'rest_order1',
+        'NAME': 'rest_order',
         'ENGINE': 'django.db.backends.postgresql',
         'HOST': '127.0.0.1',
         'USER': 'postgres',

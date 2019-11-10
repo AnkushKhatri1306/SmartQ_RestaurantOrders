@@ -1,11 +1,12 @@
 from .models import *
 from restaurantOrders.utility import *
-import xlrd
+import xlrd, csv
 import itertools
 from .serializers import *
 import datetime, pytz, json
 from django.db.models import Sum
 from collections import OrderedDict
+from django.http import HttpResponse
 
 class OrderDetailController():
 
@@ -309,3 +310,33 @@ class OrderDetailController():
         except Exception as e:
             exception_detail(e)
             return get_response_object(success, msg)
+
+
+    def csv_download(self, request):
+        """
+        function to download the data of item details in CSV format
+        1. making a httpresponse object to send to frontend
+        2. querying and getting the result from db and inserting it to CSV file
+        :param request: request data
+        :return: csv file as response
+        """
+        try:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="restaurant_detail.csv"'
+            writer = csv.writer(response)
+            writer.writerow(['Item name', 'Quantity', 'Item Price', 'Ordered Time'])
+            restaurant_id = request.GET.get('restaurantId', None)
+            date_sample = request.GET.get('dateSample')
+            if restaurant_id and date_sample:
+                date_sample = datetime.datetime.strptime(date_sample, "%d-%M-%Y").strftime("%Y-%M-%d")
+                order_item_obj = OrderItem.objects.filter(order_detail__restaurant__name=restaurant_id,
+                                                          order_detail__timestamp__date=date_sample)
+                order_item_serializer = OrderItemSerializer(order_item_obj, many=True)
+                order_item_data = order_item_serializer.data
+                for data in order_item_data:
+                    writer.writerow([data.get('item_name'), data.get('quantity'), data.get('price'),
+                                     data.get('order_time')])
+                return response
+        except Exception as e:
+            exception_detail(e)
+            return get_response_object(False, "Error in getting file")
